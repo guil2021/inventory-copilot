@@ -1,0 +1,528 @@
+/* ===================================================================
+   Design tokens. Every color/spacing value used below is defined once
+   here as a CSS variable, so the whole look can be re-themed by editing
+   this one block instead of hunting through every rule.
+   =================================================================== */
+:root {
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-border: #e7e9f0;
+  --color-text: #1a1d29;
+  --color-text-muted: #6b7083;
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-primary-soft: #eef0fe;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fdecec;
+  --color-success: #16a34a;
+  --color-success-soft: #e9f9ef;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.06);
+
+  /* ---- Categorical + status colors, taken from a validated,
+     colorblind-safe palette (checked with a CVD simulator, not
+     eyeballed) rather than picked freely. Each one is used for a
+     specific MEANING below (a category, an agent, a status) and
+     never cycled or reused for something else. ---- */
+  --cat-1-blue: #2a78d6;    /* Electronics / Inventory Agent */
+  --cat-1-blue-soft: #e6f0fc;
+  --cat-2-orange: #eb6834;  /* Furniture / Pricing Agent */
+  --cat-2-orange-soft: #fdece2;
+  --cat-3-aqua: #1baf7a;    /* Office Supplies */
+  --cat-3-aqua-soft: #e3f7ef;
+  --status-critical: #d03b3b; /* low-stock badge */
+  --status-warning: #fab219;  /* latency chip */
+  --status-good: #0ca30c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* ---- Hero banner: a full-width gradient card instead of a plain
+   header, so the project reads as a real product landing rather than
+   an internal tool. The gradient runs between two non-adjacent slots
+   of the validated categorical palette (blue -> violet), used here
+   purely decoratively - it never stands in for a data color. ---- */
+.hero {
+  background: linear-gradient(135deg, var(--cat-1-blue) 0%, #6250d6 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 24px;
+  margin-bottom: 20px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);
+}
+
+.hero .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero .brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.live-pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13.5px;
+}
+
+/* ---- KPI stat tiles: three at-a-glance numbers, each colored for a
+   distinct meaning (not decoration) - total catalog size, how many
+   items need attention right now, and total dollar value at risk. ---- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 700px) {
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.kpi-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.kpi-icon.blue { background: var(--cat-1-blue-soft); color: var(--cat-1-blue); }
+.kpi-icon.critical { background: var(--color-danger-soft); color: var(--status-critical); }
+.kpi-icon.aqua { background: var(--cat-3-aqua-soft); color: var(--cat-3-aqua); }
+
+.kpi-label {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-value {
+  margin: 1px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* Hero/stat-tile numbers use the font's default proportional figures,
+     not tabular-nums - tabular spacing is for columns that must align
+     (table rows), and makes a big standalone number look loose. */
+}
+
+.error-banner {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Stack into a single column on narrow screens instead of squeezing the
+   table - keeps the demo usable on a laptop in a tight meeting room. */
+@media (max-width: 880px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.card-sub {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* ---- Product table ---- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 10px;
+  font-size: 13.5px;
+}
+
+thead th {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 10px;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.12s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: #fafbff;
+}
+
+tr.low-stock {
+  background: var(--color-danger-soft);
+}
+
+tr.low-stock:hover {
+  background: #fbe3e3;
+}
+
+.product-name {
+  font-weight: 600;
+}
+
+.category-tag {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  background: #f1f2f7;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--color-danger);
+  color: white;
+  margin-left: 6px;
+}
+
+input, button {
+  font-family: inherit;
+  font-size: 13.5px;
+}
+
+input {
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+button {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.05s ease;
+}
+
+button:hover {
+  background: var(--color-primary-dark);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.qty-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.qty-form input {
+  width: 64px;
+}
+
+/* ---- Chat panel ---- */
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 360px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 2px;
+}
+
+.chat-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.chat-row.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.avatar.bot {
+  background: linear-gradient(135deg, var(--color-primary), #818cf8);
+}
+
+/* A reply handled by exactly one agent gets that agent's own color, so
+   you can see which agent answered at a glance, before even reading the
+   text - reinforcing the "two specialized agents" story visually. A
+   reply from both agents (or the static welcome message) keeps the
+   neutral brand gradient above, since no single color would be honest. */
+.avatar.bot.agent-inventory {
+  background: var(--cat-1-blue);
+}
+
+.avatar.bot.agent-pricing {
+  background: var(--cat-2-orange);
+}
+
+.avatar.user {
+  background: #94a3b8;
+}
+
+.chat-bubble {
+  padding: 9px 13px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  max-width: 82%;
+  white-space: pre-wrap;
+}
+
+.chat-bubble.user {
+  background: var(--color-primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.bot {
+  background: #f1f2f7;
+  color: var(--color-text);
+  border-bottom-left-radius: 4px;
+}
+
+/* The instrumentation line (agent used / latency / tokens) rendered as
+   small pill "chips" instead of plain monospace text, so it reads as
+   part of the UI rather than a debug log. */
+.stat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stat-chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+/* Same agent-color logic as the avatar above, applied to the "which
+   agent(s) handled this" chip specifically. */
+.stat-chip.agent-inventory {
+  background: var(--cat-1-blue-soft);
+  color: var(--cat-1-blue);
+}
+
+.stat-chip.agent-pricing {
+  background: var(--cat-2-orange-soft);
+  color: var(--cat-2-orange);
+}
+
+.stat-chip.latency {
+  background: #fef3e2;
+  color: #b45309;
+}
+
+.stat-chip.tokens {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.chat-form {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-form input {
+  flex: 1;
+  border-radius: 999px;
+  padding: 9px 16px;
+}
+
+.chat-form button {
+  border-radius: 999px;
+}
+
+/* ---- Alerts panel ---- */
+.alert-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13.5px;
+}
+
+.alert-row:last-child {
+  border-bottom: none;
+}
+
+.alert-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.alert-time {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.empty-state {
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}

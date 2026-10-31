@@ -1,0 +1,85 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: inventory
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Single-node Kafka in KRaft mode - no separate Zookeeper container needed.
+  # Uses Confluent's official image (the Bitnami one we started with got
+  # pulled from Docker Hub after Bitnami restructured their free images).
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM1Tk
+
+  backend:
+    build: ./backend
+    depends_on:
+      - mysql
+      - kafka
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_NAME: inventory
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: low-stock-alerts
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+  consumer:
+    build: ./consumer
+    depends_on:
+      - mysql
+      - kafka
+    restart: on-failure
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_NAME: inventory
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: low-stock-alerts
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      # Inside Docker the frontend's dev-server proxy must reach the
+      # backend by its service name, not "localhost" (see vite.config.js).
+      VITE_API_PROXY_TARGET: http://backend:4000
+    ports:
+      - "5173:5173"
+
+volumes:
+  mysql-data:

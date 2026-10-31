@@ -1,0 +1,14 @@
+{
+  "name": "inventory-copilot-consumer",
+  "version": "1.0.0",
+  "description": "Kafka consumer that writes low-stock alert events into MySQL",
+  "main": "consumer.js",
+  "scripts": {
+    "start": "node consumer.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.11.0"
+  }
+}
